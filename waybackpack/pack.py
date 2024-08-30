@@ -2,11 +2,13 @@ import logging
 import os
 import platform
 import time
+import re
 
 from .asset import Asset
 from .cdx import search
 from .session import Session
 from .settings import DEFAULT_ROOT
+from pathlib import Path
 
 logger = logging.getLogger(__name__)
 
@@ -83,9 +85,9 @@ class Pack(object):
             if path_tail == "":
                 path_tail = "index.html"
 
+        ## don't include timestamp in dest dir
             filedir = os.path.join(
                 directory,
-                asset.timestamp,
                 replace_invalid_chars(self.parsed_url.netloc, fallback_char),
                 replace_invalid_chars(path_head.lstrip("/"), fallback_char),
             )
@@ -131,5 +133,20 @@ class Pack(object):
                 pass
 
             with open(filepath, "wb") as f:
+                print('FILEPATH', f.name)
                 logger.info("Writing to {0}\n".format(filepath))
                 f.write(content)
+                
+                # txt = Path(f).read_text()
+                
+                img_pat = re.compile(r'<img [^>]*src="([^"]+)')
+                link_pat = re.compile(r'href=["\'](.*?)["\']')
+                
+                with open(f.name, 'r') as file:
+                    file_contents = file.read()
+                    # The file contents are now stored as a string in the variable
+                
+                    img = img_pat.findall(file_contents)
+                    link = link_pat.findall(file_contents)
+                    print('LINK 🔗', link)
+                    print('IMG 🧠', img)

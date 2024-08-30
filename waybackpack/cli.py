@@ -125,6 +125,7 @@ def parse_args():
 
 
 def main():
+    print('👽')
     args = parse_args()
 
     logging.basicConfig(
@@ -132,6 +133,7 @@ def main():
         format="%(levelname)s:%(name)s: %(message)s",
     )
 
+    ## main entrypoint, create session object, search snapshots, and pass both to pack
     session = Session(
         user_agent=args.user_agent,
         follow_redirects=args.follow_redirects,

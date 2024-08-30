@@ -42,6 +42,7 @@ setup(
     },
     install_requires=base_reqs,
     entry_points={
-        "console_scripts": [ "waybackpack = waybackpack.cli:main" ]
+        ## entry point here, maybe create new one
+        "console_scripts": [ "waybackpack = waybackpack.cli:main", "wb-recursive = waybackpack.cli:main" ]
     }
 )
