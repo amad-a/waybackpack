@@ -3,6 +3,7 @@ import os
 import platform
 import time
 import re
+import codecs
 
 from .asset import Asset
 from .cdx import search
@@ -45,6 +46,9 @@ def replace_invalid_chars(path, fallback_char="_"):
 
 class Pack(object):
     def __init__(self, url, timestamps=None, uniques_only=False, session=None):
+        
+        ## adjust timestamp logic to make more lax/get nearest timestamp
+        print('TIMESTAMPS ⏳', timestamps)
 
         self.url = url
         prefix = "http://" if urlparse(url).scheme == "" else ""
@@ -136,16 +140,25 @@ class Pack(object):
                 print('FILEPATH', f.name)
                 logger.info("Writing to {0}\n".format(filepath))
                 f.write(content)
-                
-                # txt = Path(f).read_text()
-                
+                                
                 img_pat = re.compile(r'<img [^>]*src="([^"]+)')
                 link_pat = re.compile(r'href=["\'](.*?)["\']')
                 
-                with open(f.name, 'r') as file:
+                result = from_path(f.name).best()
+
+                if result:
+                    detected_encoding = result.encoding
+                    print(f"Detected encoding: {detected_encoding}")
+
+                    decoded_content = content.decode(detected_encoding)
+                    with open(f.name, 'w', encoding=detected_encoding) as file:
+                        file.write(decoded_content)
+
+                else:
+                    print("Could not detect encoding")
+
+                with open(f.name, 'r', encoding=detected_encoding) as file:
                     file_contents = file.read()
-                    # The file contents are now stored as a string in the variable
-                
                     img = img_pat.findall(file_contents)
                     link = link_pat.findall(file_contents)
                     print('LINK 🔗', link)
